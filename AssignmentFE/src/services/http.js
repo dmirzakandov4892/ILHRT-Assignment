@@ -1,9 +1,13 @@
-// external lib 
 import axios from "axios";
+import cfg from "../config.json";
 
-const service = {
-  get: axios.get,
-  post: axios.post,
-};
+export const http = axios.create({
+  baseURL: cfg.baseUrl,
+  headers: { Accept: "application/json" }
+});
 
-export default service;
+export const get = (url, config) => http.get(url, config);
+export const post = (url, data, config) =>
+  http.post(url, data, { headers: { "Content-Type": "application/json" }, ...config });
+
+export default http; 

@@ -1,22 +1,25 @@
-// methodes
-import http from "./http";
+import { get, post } from "./http";
 
-// config data
-import config from "../config.json";
+// Server shape (what the API returns)
+export interface UserModel {
+  userName?: string;   // server may send userName
+  fullName?: string;   // or fullName – support both
+  workTitle: string;
+  email?: string;
+  imageUrl: string;
+  skills?: Record<string, number>;
+}
 
-export async function getAllusers() {
-  const { data } = await http.get(config.apiUrl);
+export async function getAllUsers(): Promise<UserModel[]> {
+  const { data } = await get("/User");
   return data;
 }
 
-export async function getUsersByTxt(txt: string) {
-  const { data } = await http.post(config.apiUrl, {
-    "text": txt
-  });
+// POST body is a raw string (your current controller)
+export async function searchUsers(text: string): Promise<UserModel[]> {
+  const { data } = await post("/User", JSON.stringify(text ?? ""));
   return data;
 }
 
-export default {
-  getAllusers,
-  getUsersByTxt,
-};
+const usersService = { getAllUsers, searchUsers };
+export default usersService;

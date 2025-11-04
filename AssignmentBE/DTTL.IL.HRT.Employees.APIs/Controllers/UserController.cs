@@ -26,10 +26,20 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<List<UserModel>> Post()
+    public ActionResult<List<UserModel>> Post([FromBody] string text)
     {
-        //** add logic  **//
-        return BadRequest();
+        if (string.IsNullOrWhiteSpace(text))
+            return Ok(users); // return all if text empty
+
+        text = text.Trim().ToLower();
+
+        var filtered = users
+            .Where(u =>
+                u.FullName.ToLower().Contains(text) ||
+                u.WorkTitle.ToLower().Contains(text))
+            .ToList();
+
+        return Ok(filtered);
     }
 }
 

@@ -1,28 +1,50 @@
-// react
 import { useState, useEffect } from "react";
-//components
 import SearchBarInput from "./common/SearchBarInput";
 import ScrollBox from "./ScrollBox";
-//css
 import "../style/SearchBar.css";
-//services
-import { getUsersByTxt, getAllusers } from "../services/usersService";
+import { getAllUsers, searchUsers, type UserModel } from "../services/usersService";
 
+// UI shape expected by ScrollBox
+type UiUser = { fullName: string; workTitle: string; imageUrl: string };
 
 export default function SearchBar() {
   const [inputTxt, setInputTxt] = useState("");
-  const [usersData, setUsersData] = useState([]);
+  const [usersData, setUsersData] = useState<UiUser[]>([]);
   const [inFocus, setInFocus] = useState(false);
 
-  /* ------ Fix: ADD YOUR CODE HERE  ----- */
+  // Load all users once (2.4)
   useEffect(() => {
-      const data = getAllusers();
-      setUsersData(data);
-  });
+    let mounted = true;
+    (async () => {
+      const data: UserModel[] = await getAllUsers();
+      const ui: UiUser[] = data.map(u => ({
+        fullName: u.fullName ?? u.userName ?? "",
+        workTitle: u.workTitle ?? "",
+        imageUrl: u.imageUrl ?? ""
+      }));
+      if (mounted) setUsersData(ui);
+    })();
+    return () => { mounted = false; };
+  }, []);
 
-  /* ------ Complete: ADD YOUR CODE HERE ----- */
+  // Called by SearchBarInput; implements server filter (2.5) + autocomplete (2.3)
   const getData = async (userTxt: string) => {
-
+    const q = (userTxt ?? "").trim();
+    if (!q) {
+      const data = await getAllUsers();
+      setUsersData(data.map(u => ({
+        fullName: u.fullName ?? u.userName ?? "",
+        workTitle: u.workTitle ?? "",
+        imageUrl: u.imageUrl ?? ""
+      })));
+      return;
+    }
+    const data = await searchUsers(q);
+    setUsersData(data.map(u => ({
+      fullName: u.fullName ?? u.userName ?? "",
+      workTitle: u.workTitle ?? "",
+      imageUrl: u.imageUrl ?? ""
+    })));
   };
 
   return (
@@ -37,7 +59,7 @@ export default function SearchBar() {
       <div className="scroolable">
         <ScrollBox
           searchedTxt={inputTxt}
-          usersData={usersData}
+          usersData={usersData}   // exactly { fullName, workTitle, imageUrl }[]
           display={inFocus}
         />
       </div>

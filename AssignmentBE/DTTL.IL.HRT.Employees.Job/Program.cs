@@ -48,20 +48,57 @@ if (users == null || users.Count == 0)
 
 
 
-if (users != null)
-    foreach (var u in users)
-    {
-        if (u != null)
-        {
-            foreach (var s in u.Skills)
-            {
-                u.Skills[s.Key]++;
-            }
-            loggerText.Information(u.ToString());
+//if (users != null)
+//    foreach (var u in users)
+//    {
+//        if (u != null)
+//        {
+//            foreach (var s in u.Skills)
+//            {
+//                u.Skills[s.Key]++;
+//            }
+//            loggerText.Information(u.ToString());
 
+//        }
+//    }
+//jrw.WriteUsersDaily(users);
+
+
+// Determine if this is a second run or more (daily file already exists)
+var dailyUsers = jrw.ReadUsersDaily();
+bool isSecondRunOrMore = dailyUsers != null && dailyUsers.Count > 0;
+
+// If daily exists, use it as current list; otherwise, use the main file
+if (isSecondRunOrMore)
+    users = dailyUsers;
+
+// --- Logic update ---
+if (users != null)
+{
+    if (isSecondRunOrMore)
+    {
+        // Second run or more: set all skills to 2
+        foreach (var u in users)
+        {
+            if (u?.Skills == null) continue;
+            var keys = u.Skills.Keys.ToList();
+            foreach (var key in keys)
+                u.Skills[key] = 2;
+
+            loggerText.Information($"[Second Run] Updated skills for {u.UserName}");
         }
     }
+    else
+    {
+        // First run: just log users normally
+        foreach (var u in users)
+            loggerText.Information($"[First Run] {u.UserName}");
+    }
+}
+
+// Write daily file after updates
 jrw.WriteUsersDaily(users);
+
 
 
 

@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "DTTL.IL.HRT.Employees.APIs\\DTTL.IL.HRT.Employees.APIs.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DTTL.IL.HRT.Employees.Job\\DTTL.IL.HRT.Employees.Job.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
