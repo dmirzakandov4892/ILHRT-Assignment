@@ -16,14 +16,30 @@ export default function SearchBar() {
 
   /* ------ Fix: ADD YOUR CODE HERE  ----- */
   useEffect(() => {
-      const data = getAllusers();
+    const fetchData = async () => {
+      const data = await getAllusers();
       setUsersData(data);
-  });
+    }
+    fetchData();
+  }, []);
 
   /* ------ Complete: ADD YOUR CODE HERE ----- */
   const getData = async (userTxt: string) => {
+    if (!userTxt || userTxt.trim() === "") {
+      const allUsers = await getAllusers();
+      setUsersData(allUsers.length ? allUsers : []);
+    } else {
+      const matched = await getUsersByTxt(userTxt);
 
+      if (!matched || matched.length === 0) {
+        setUsersData([]);
+        console.log("No matching users found");
+      } else {
+        setUsersData(matched);
+      }
+    }
   };
+
 
   return (
     <div className="Main">

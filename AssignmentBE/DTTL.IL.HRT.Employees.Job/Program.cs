@@ -20,11 +20,12 @@ var _host = Host.CreateDefaultBuilder()
                     .Build();
 
 var graphClientToken = _host.Services.GetRequiredService<MSGraphToken>();
-var loggerText = new LoggerConfiguration()
+using var loggerText = new LoggerConfiguration()
                                 .WriteTo.Console()
-                               .WriteTo.File(Utils.getTxtFileName(0), fileSizeLimitBytes: null)
+                               .WriteTo.File(Utils.getTxtFileName(0))
                                .MinimumLevel.Debug()
                                .CreateLogger();
+
 
 UsersFileHandler jrw = new($"./{Utils.getJsonUsersFiles()}", $"./{Utils.getJsonFileName(0)}");
 
@@ -49,18 +50,19 @@ if (users == null || users.Count == 0)
 
 
 if (users != null)
+{
     foreach (var u in users)
     {
         if (u != null)
         {
-            foreach (var s in u.Skills)
+            foreach (var key in u.Skills.Keys.ToList())
             {
-                u.Skills[s.Key]++;
+                u.Skills[key] = u.Skills[key] >= 1 ? 2 : 1;
             }
             loggerText.Information(u.ToString());
-
         }
     }
+}
 jrw.WriteUsersDaily(users);
 
 

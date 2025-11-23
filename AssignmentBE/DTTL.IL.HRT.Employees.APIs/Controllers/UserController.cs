@@ -25,11 +25,25 @@ public class UserController : ControllerBase
         return users;
     }
 
-    [HttpPost]
-    public ActionResult<List<UserModel>> Post()
+    public class SearchRequest
     {
-        //** add logic  **//
-        return BadRequest();
+        public string Text { get; set; }
     }
+
+    [HttpPost]
+    public ActionResult<List<UserModel>> Post([FromBody] SearchRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Text))
+            return BadRequest("Search text cannot be empty.");
+
+        var filteredUsers = users
+            .Where(u => u.FullName.Contains(request.Text, StringComparison.OrdinalIgnoreCase)
+                     || u.WorkTitle.Contains(request.Text, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return Ok(filteredUsers);
+    }
+
+
 }
 
